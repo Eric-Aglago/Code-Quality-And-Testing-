@@ -2,10 +2,10 @@ package com.rosewood.payroll;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import org.junit.jupiter.api.Test;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 class PayrollCalculatorTest {
 
@@ -14,45 +14,41 @@ class PayrollCalculatorTest {
         EmployeeRepository repository = mock(EmployeeRepository.class);
         when(repository.findById("e1"))
                 .thenReturn(new Employee("e1", "Efua Sarpong"));
-
         PayrollCalculator calculator = new PayrollCalculator(repository);
 
-        double net = calculator.calculateNetPay("e1", 40, 20);
+        double netPay = calculator.calculateNetPay("e1", 40, 20);
 
-        assertEquals(760.0, net, 0.001);
+        assertEquals(760.0, netPay, 0.001);
     }
 
     @Test
     void calculatesNetPayIncludingOvertime() {
         EmployeeRepository repository = mock(EmployeeRepository.class);
-        when(repository.findById("e2"))
-                .thenReturn(new Employee("e2", "Kwame Owusu"));
-
+        when(repository.findById("e1"))
+                .thenReturn(new Employee("e1", "Efua Sarpong"));
         PayrollCalculator calculator = new PayrollCalculator(repository);
 
-        double net = calculator.calculateNetPay("e2", 50, 30);
+        double netPay = calculator.calculateNetPay("e1", 50, 30);
 
-        assertEquals(1402.5, net, 0.001);
+        assertEquals(1402.5, netPay, 0.001);
     }
 
     @Test
-    void calculatesNetPayForLessThanFortyHours() {
+    void calculatesNetPayForLowerTaxBand() {
         EmployeeRepository repository = mock(EmployeeRepository.class);
         when(repository.findById("e1"))
                 .thenReturn(new Employee("e1", "Efua Sarpong"));
-
         PayrollCalculator calculator = new PayrollCalculator(repository);
 
-        double net = calculator.calculateNetPay("e1", 35, 25);
+        double netPay = calculator.calculateNetPay("e1", 35, 25);
 
-        assertEquals(831.25, net, 0.001);
+        assertEquals(831.25, netPay, 0.001);
     }
 
     @Test
     void throwsExceptionWhenEmployeeDoesNotExist() {
         EmployeeRepository repository = mock(EmployeeRepository.class);
         when(repository.findById("unknown")).thenReturn(null);
-
         PayrollCalculator calculator = new PayrollCalculator(repository);
 
         EmployeeNotFoundException exception = assertThrows(
@@ -64,5 +60,142 @@ class PayrollCalculatorTest {
                 "Employee not found with ID: unknown",
                 exception.getMessage()
         );
+    }
+
+    @Test
+    void rejectsNullEmployeeId() {
+        EmployeeRepository repository = mock(EmployeeRepository.class);
+        when(repository.findById("e1"))
+                .thenReturn(new Employee("e1", "Efua Sarpong"));
+        PayrollCalculator calculator = new PayrollCalculator(repository);
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> calculator.calculateNetPay(null, 40, 20)
+        );
+
+        assertEquals("Employee ID must not be blank", exception.getMessage());
+        verifyNoInteractions(repository);
+    }
+
+    @Test
+    void rejectsBlankEmployeeId() {
+        EmployeeRepository repository = mock(EmployeeRepository.class);
+        when(repository.findById("e1"))
+                .thenReturn(new Employee("e1", "Efua Sarpong"));
+        PayrollCalculator calculator = new PayrollCalculator(repository);
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> calculator.calculateNetPay("  ", 40, 20)
+        );
+
+        assertEquals("Employee ID must not be blank", exception.getMessage());
+        verifyNoInteractions(repository);
+    }
+
+    @Test
+    void rejectsNegativeHoursWorked() {
+        EmployeeRepository repository = mock(EmployeeRepository.class);
+        when(repository.findById("e1"))
+                .thenReturn(new Employee("e1", "Efua Sarpong"));
+        PayrollCalculator calculator = new PayrollCalculator(repository);
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> calculator.calculateNetPay("e1", -5, 20)
+        );
+
+        assertEquals(
+                "Hours worked must be a finite, non-negative value",
+                exception.getMessage()
+        );
+        verifyNoInteractions(repository);
+    }
+
+    @Test
+    void rejectsNegativeHourlyRate() {
+        EmployeeRepository repository = mock(EmployeeRepository.class);
+        when(repository.findById("e1"))
+                .thenReturn(new Employee("e1", "Efua Sarpong"));
+        PayrollCalculator calculator = new PayrollCalculator(repository);
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> calculator.calculateNetPay("e1", 40, -20)
+        );
+
+        assertEquals(
+                "Hourly rate must be a finite, non-negative value",
+                exception.getMessage()
+        );
+        verifyNoInteractions(repository);
+    }
+
+    @Test
+    void rejectsNonFiniteHoursWorked() {
+        EmployeeRepository repository = mock(EmployeeRepository.class);
+        when(repository.findById("e1"))
+                .thenReturn(new Employee("e1", "Efua Sarpong"));
+        PayrollCalculator calculator = new PayrollCalculator(repository);
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> calculator.calculateNetPay("e1", Double.NaN, 20)
+        );
+
+        assertEquals(
+                "Hours worked must be a finite, non-negative value",
+                exception.getMessage()
+        );
+        verifyNoInteractions(repository);
+    }
+
+    @Test
+    void rejectsNonFiniteHourlyRate() {
+        EmployeeRepository repository = mock(EmployeeRepository.class);
+        when(repository.findById("e1"))
+                .thenReturn(new Employee("e1", "Efua Sarpong"));
+        PayrollCalculator calculator = new PayrollCalculator(repository);
+
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> calculator.calculateNetPay(
+                        "e1",
+                        40,
+                        Double.POSITIVE_INFINITY
+                )
+        );
+
+        assertEquals(
+                "Hourly rate must be a finite, non-negative value",
+                exception.getMessage()
+        );
+        verifyNoInteractions(repository);
+    }
+
+    @Test
+    void acceptsZeroHoursWorked() {
+        EmployeeRepository repository = mock(EmployeeRepository.class);
+        when(repository.findById("e1"))
+                .thenReturn(new Employee("e1", "Efua Sarpong"));
+        PayrollCalculator calculator = new PayrollCalculator(repository);
+
+        double netPay = calculator.calculateNetPay("e1", 0, 20);
+
+        assertEquals(0.0, netPay, 0.001);
+    }
+
+    @Test
+    void acceptsZeroHourlyRate() {
+        EmployeeRepository repository = mock(EmployeeRepository.class);
+        when(repository.findById("e1"))
+                .thenReturn(new Employee("e1", "Efua Sarpong"));
+        PayrollCalculator calculator = new PayrollCalculator(repository);
+
+        double netPay = calculator.calculateNetPay("e1", 40, 0);
+
+        assertEquals(0.0, netPay, 0.001);
     }
 }

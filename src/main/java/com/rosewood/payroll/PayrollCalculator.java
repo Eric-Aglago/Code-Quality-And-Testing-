@@ -18,6 +18,8 @@ public class PayrollCalculator {
             double hoursWorked,
             double hourlyRate
     ) {
+        validatePayrollInputs(employeeId, hoursWorked, hourlyRate);
+
         Employee employee = repository.findById(employeeId);
 
         if (employee == null) {
@@ -47,5 +49,29 @@ public class PayrollCalculator {
         );
 
         return net;
+    }
+
+    private void validatePayrollInputs(
+            String employeeId,
+            double hoursWorked,
+            double hourlyRate
+    ) {
+        if (employeeId == null || employeeId.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Employee ID must not be blank"
+            );
+        }
+
+        if (!Double.isFinite(hoursWorked) || hoursWorked < 0) {
+            throw new IllegalArgumentException(
+                    "Hours worked must be a finite, non-negative value"
+            );
+        }
+
+        if (!Double.isFinite(hourlyRate) || hourlyRate < 0) {
+            throw new IllegalArgumentException(
+                    "Hourly rate must be a finite, non-negative value"
+            );
+        }
     }
 }
