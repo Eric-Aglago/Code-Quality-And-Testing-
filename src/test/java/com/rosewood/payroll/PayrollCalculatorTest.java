@@ -1,9 +1,12 @@
 package com.rosewood.payroll;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class PayrollCalculatorTest {
 
@@ -28,4 +31,19 @@ class PayrollCalculatorTest {
         double net = calculator.calculateNetPay("e1", 35, 25);
         assertNotNull(net); // a result came back
     }
+
+    @Test
+    void throwsExceptionWhenEmployeeDoesNotExist() {
+    PayrollCalculator calculator = new PayrollCalculator();
+
+    EmployeeNotFoundException exception = assertThrows(
+            EmployeeNotFoundException.class,
+            () -> calculator.calculateNetPay("unknown", 40, 20)
+    );
+
+    assertEquals(
+            "Employee not found with ID: unknown",
+            exception.getMessage()
+    );
+}
 }
