@@ -1,28 +1,34 @@
 package com.rosewood.payroll;
 
+import java.util.List;
+import java.util.Objects;
+
 public class TaxCalculator {
 
-    private static final double LOW_TAX_THRESHOLD = 1000;
-    private static final double MEDIUM_TAX_THRESHOLD = 5000;
+    private final List<TaxBand> taxBands;
 
-    private static final double LOW_TAX_RATE = 0.05;
-    private static final double MEDIUM_TAX_RATE = 0.15;
-    private static final double HIGH_TAX_RATE = 0.25;
+    public TaxCalculator(List<TaxBand> taxBands) {
+        this.taxBands = List.copyOf(
+                Objects.requireNonNull(taxBands, "Tax bands cannot be null")
+        );
 
-    public double calculateNetPay(double grossPay) {
-        double taxRate = getTaxRate(grossPay);
-        return grossPay - (grossPay * taxRate);
+        if (this.taxBands.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "At least one tax band must be configured"
+            );
+        }
     }
 
-    private double getTaxRate(double grossPay) {
-        if (grossPay < LOW_TAX_THRESHOLD) {
-            return LOW_TAX_RATE;
-        }
+    public double calculateNetPay(double grossPay) {
+        TaxBand applicableBand = taxBands.stream()
+                .filter(band -> band.appliesTo(grossPay))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "No tax band found for gross pay: " + grossPay
+                ));
 
-        if (grossPay < MEDIUM_TAX_THRESHOLD) {
-            return MEDIUM_TAX_RATE;
-        }
+        double tax = applicableBand.calculateTax(grossPay);
 
-        return HIGH_TAX_RATE;
+        return grossPay - tax;
     }
 }

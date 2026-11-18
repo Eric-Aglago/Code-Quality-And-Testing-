@@ -1,4 +1,5 @@
 package com.rosewood.payroll;
+import java.util.List;
 
 public class Demo {
 
@@ -7,7 +8,13 @@ public class Demo {
         EmployeeRepository repository = new InMemoryEmployeeRepository();
 
         GrossPayCalculator grossPayCalculator = new GrossPayCalculator();
-        TaxCalculator taxCalculator = new TaxCalculator();
+        TaxCalculator taxCalculator = new TaxCalculator(
+        List.of(
+                new LowTaxBand(),
+                new MediumTaxBand(),
+                new HighTaxBand()
+        )
+);
         PayrollReportPrinter reportPrinter = new PayrollReportPrinter();
 
         PayrollCalculator calculator = new PayrollCalculator(

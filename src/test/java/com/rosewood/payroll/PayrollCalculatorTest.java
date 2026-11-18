@@ -1,5 +1,7 @@
 package com.rosewood.payroll;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
@@ -15,7 +17,15 @@ class PayrollCalculatorTest {
         return new PayrollCalculator(
                 repository,
                 new GrossPayCalculator(),
-                new TaxCalculator(),
+
+                new TaxCalculator(
+        List.of(
+                new LowTaxBand(),
+                new MediumTaxBand(),
+                new HighTaxBand()
+        )
+),
+                
                 new PayrollReportPrinter()
         );
     }
