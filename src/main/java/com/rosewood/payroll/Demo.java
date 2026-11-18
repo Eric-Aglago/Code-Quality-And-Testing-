@@ -3,20 +3,29 @@ package com.rosewood.payroll;
 public class Demo {
 
     public static void main(String[] args) {
+
         EmployeeRepository repository = new InMemoryEmployeeRepository();
-        PayrollCalculator calculator = new PayrollCalculator(repository);
 
-        System.out.println("Result e1, 40h @ 20     -> "
-                + calculator.calculateNetPay("e1", 40, 20));
+        GrossPayCalculator grossPayCalculator = new GrossPayCalculator();
+        TaxCalculator taxCalculator = new TaxCalculator();
+        PayrollReportPrinter reportPrinter = new PayrollReportPrinter();
 
-        System.out.println("Result e2, 50h @ 30     -> "
-                + calculator.calculateNetPay("e2", 50, 30));
+        PayrollCalculator calculator = new PayrollCalculator(
+                repository,
+                grossPayCalculator,
+                taxCalculator,
+                reportPrinter
+        );
 
         try {
+            calculator.calculateNetPay("e1", 40, 20);
+            calculator.calculateNetPay("e2", 50, 30);
             calculator.calculateNetPay("unknown", 40, 20);
+
         } catch (EmployeeNotFoundException exception) {
-            System.err.println("Payroll calculation failed: "
-                    + exception.getMessage());
+            System.out.println(
+                    "Payroll calculation failed: " + exception.getMessage()
+            );
         }
     }
 }

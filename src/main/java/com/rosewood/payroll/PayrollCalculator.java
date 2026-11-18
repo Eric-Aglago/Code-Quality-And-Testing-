@@ -5,11 +5,31 @@ import java.util.Objects;
 public class PayrollCalculator {
 
     private final EmployeeRepository repository;
+    private final GrossPayCalculator grossPayCalculator;
+    private final TaxCalculator taxCalculator;
+    private final PayrollReportPrinter reportPrinter;
 
-    public PayrollCalculator(EmployeeRepository repository) {
+    public PayrollCalculator(
+            EmployeeRepository repository,
+            GrossPayCalculator grossPayCalculator,
+            TaxCalculator taxCalculator,
+            PayrollReportPrinter reportPrinter
+    ) {
         this.repository = Objects.requireNonNull(
                 repository,
                 "Employee repository cannot be null"
+        );
+        this.grossPayCalculator = Objects.requireNonNull(
+                grossPayCalculator,
+                "Gross pay calculator cannot be null"
+        );
+        this.taxCalculator = Objects.requireNonNull(
+                taxCalculator,
+                "Tax calculator cannot be null"
+        );
+        this.reportPrinter = Objects.requireNonNull(
+                reportPrinter,
+                "Report printer cannot be null"
         );
     }
 
@@ -26,29 +46,16 @@ public class PayrollCalculator {
             throw new EmployeeNotFoundException(employeeId);
         }
 
-        double gross = hoursWorked * hourlyRate;
-
-        if (hoursWorked > 40) {
-            gross += (hoursWorked - 40) * hourlyRate * 0.5;
-        }
-
-        double taxRate;
-
-        if (gross < 1000) {
-            taxRate = 0.05;
-        } else if (gross < 5000) {
-            taxRate = 0.15;
-        } else {
-            taxRate = 0.25;
-        }
-
-        double net = gross - (gross * taxRate);
-
-        System.out.println(
-                "Net pay for " + employee.getName() + ": GHS " + net
+        double grossPay = grossPayCalculator.calculateGrossPay(
+                hoursWorked,
+                hourlyRate
         );
 
-        return net;
+        double netPay = taxCalculator.calculateNetPay(grossPay);
+
+        reportPrinter.printNetPay(employee.getName(), netPay);
+
+        return netPay;
     }
 
     private void validatePayrollInputs(

@@ -9,12 +9,24 @@ import static org.mockito.Mockito.when;
 
 class PayrollCalculatorTest {
 
+    private PayrollCalculator createCalculator(
+            EmployeeRepository repository
+    ) {
+        return new PayrollCalculator(
+                repository,
+                new GrossPayCalculator(),
+                new TaxCalculator(),
+                new PayrollReportPrinter()
+        );
+    }
+
     @Test
     void calculatesNetPayForRegularHours() {
         EmployeeRepository repository = mock(EmployeeRepository.class);
         when(repository.findById("e1"))
                 .thenReturn(new Employee("e1", "Efua Sarpong"));
-        PayrollCalculator calculator = new PayrollCalculator(repository);
+
+        PayrollCalculator calculator = createCalculator(repository);
 
         double netPay = calculator.calculateNetPay("e1", 40, 20);
 
@@ -26,7 +38,8 @@ class PayrollCalculatorTest {
         EmployeeRepository repository = mock(EmployeeRepository.class);
         when(repository.findById("e1"))
                 .thenReturn(new Employee("e1", "Efua Sarpong"));
-        PayrollCalculator calculator = new PayrollCalculator(repository);
+
+        PayrollCalculator calculator = createCalculator(repository);
 
         double netPay = calculator.calculateNetPay("e1", 50, 30);
 
@@ -38,7 +51,8 @@ class PayrollCalculatorTest {
         EmployeeRepository repository = mock(EmployeeRepository.class);
         when(repository.findById("e1"))
                 .thenReturn(new Employee("e1", "Efua Sarpong"));
-        PayrollCalculator calculator = new PayrollCalculator(repository);
+
+        PayrollCalculator calculator = createCalculator(repository);
 
         double netPay = calculator.calculateNetPay("e1", 35, 25);
 
@@ -49,7 +63,8 @@ class PayrollCalculatorTest {
     void throwsExceptionWhenEmployeeDoesNotExist() {
         EmployeeRepository repository = mock(EmployeeRepository.class);
         when(repository.findById("unknown")).thenReturn(null);
-        PayrollCalculator calculator = new PayrollCalculator(repository);
+
+        PayrollCalculator calculator = createCalculator(repository);
 
         EmployeeNotFoundException exception = assertThrows(
                 EmployeeNotFoundException.class,
@@ -65,9 +80,7 @@ class PayrollCalculatorTest {
     @Test
     void rejectsNullEmployeeId() {
         EmployeeRepository repository = mock(EmployeeRepository.class);
-        when(repository.findById("e1"))
-                .thenReturn(new Employee("e1", "Efua Sarpong"));
-        PayrollCalculator calculator = new PayrollCalculator(repository);
+        PayrollCalculator calculator = createCalculator(repository);
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -81,9 +94,7 @@ class PayrollCalculatorTest {
     @Test
     void rejectsBlankEmployeeId() {
         EmployeeRepository repository = mock(EmployeeRepository.class);
-        when(repository.findById("e1"))
-                .thenReturn(new Employee("e1", "Efua Sarpong"));
-        PayrollCalculator calculator = new PayrollCalculator(repository);
+        PayrollCalculator calculator = createCalculator(repository);
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -97,9 +108,7 @@ class PayrollCalculatorTest {
     @Test
     void rejectsNegativeHoursWorked() {
         EmployeeRepository repository = mock(EmployeeRepository.class);
-        when(repository.findById("e1"))
-                .thenReturn(new Employee("e1", "Efua Sarpong"));
-        PayrollCalculator calculator = new PayrollCalculator(repository);
+        PayrollCalculator calculator = createCalculator(repository);
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -116,9 +125,7 @@ class PayrollCalculatorTest {
     @Test
     void rejectsNegativeHourlyRate() {
         EmployeeRepository repository = mock(EmployeeRepository.class);
-        when(repository.findById("e1"))
-                .thenReturn(new Employee("e1", "Efua Sarpong"));
-        PayrollCalculator calculator = new PayrollCalculator(repository);
+        PayrollCalculator calculator = createCalculator(repository);
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -135,9 +142,7 @@ class PayrollCalculatorTest {
     @Test
     void rejectsNonFiniteHoursWorked() {
         EmployeeRepository repository = mock(EmployeeRepository.class);
-        when(repository.findById("e1"))
-                .thenReturn(new Employee("e1", "Efua Sarpong"));
-        PayrollCalculator calculator = new PayrollCalculator(repository);
+        PayrollCalculator calculator = createCalculator(repository);
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -154,10 +159,7 @@ class PayrollCalculatorTest {
     @Test
     void rejectsNonFiniteHourlyRate() {
         EmployeeRepository repository = mock(EmployeeRepository.class);
-        when(repository.findById("e1"))
-                .thenReturn(new Employee("e1", "Efua Sarpong"));
-        PayrollCalculator calculator = new PayrollCalculator(repository);
-
+        PayrollCalculator calculator = createCalculator(repository);
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -180,7 +182,8 @@ class PayrollCalculatorTest {
         EmployeeRepository repository = mock(EmployeeRepository.class);
         when(repository.findById("e1"))
                 .thenReturn(new Employee("e1", "Efua Sarpong"));
-        PayrollCalculator calculator = new PayrollCalculator(repository);
+
+        PayrollCalculator calculator = createCalculator(repository);
 
         double netPay = calculator.calculateNetPay("e1", 0, 20);
 
@@ -192,7 +195,8 @@ class PayrollCalculatorTest {
         EmployeeRepository repository = mock(EmployeeRepository.class);
         when(repository.findById("e1"))
                 .thenReturn(new Employee("e1", "Efua Sarpong"));
-        PayrollCalculator calculator = new PayrollCalculator(repository);
+
+        PayrollCalculator calculator = createCalculator(repository);
 
         double netPay = calculator.calculateNetPay("e1", 40, 0);
 
