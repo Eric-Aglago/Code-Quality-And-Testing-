@@ -1,8 +1,10 @@
 package com.rosewood.payroll;
 
+import java.math.BigDecimal;
+
 public interface TaxBand {
 
-    boolean appliesTo(double grossPay);
+    boolean appliesTo(BigDecimal grossPay);
 
-    double calculateTax(double grossPay);
+    BigDecimal calculateTax(BigDecimal grossPay);
 }

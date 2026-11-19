@@ -1,5 +1,6 @@
 package com.rosewood.payroll;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 
@@ -19,7 +20,7 @@ public class TaxCalculator {
         }
     }
 
-    public double calculateNetPay(double grossPay) {
+    public BigDecimal calculateNetPay(BigDecimal grossPay) {
         TaxBand applicableBand = taxBands.stream()
                 .filter(band -> band.appliesTo(grossPay))
                 .findFirst()
@@ -27,8 +28,8 @@ public class TaxCalculator {
                         "No tax band found for gross pay: " + grossPay
                 ));
 
-        double tax = applicableBand.calculateTax(grossPay);
+        BigDecimal tax = applicableBand.calculateTax(grossPay);
 
-        return grossPay - tax;
+        return grossPay.subtract(tax).setScale(2);
     }
 }

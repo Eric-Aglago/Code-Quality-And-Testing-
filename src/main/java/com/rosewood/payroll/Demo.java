@@ -1,4 +1,6 @@
 package com.rosewood.payroll;
+
+import java.math.BigDecimal;
 import java.util.List;
 
 public class Demo {
@@ -8,13 +10,15 @@ public class Demo {
         EmployeeRepository repository = new InMemoryEmployeeRepository();
 
         GrossPayCalculator grossPayCalculator = new GrossPayCalculator();
+
         TaxCalculator taxCalculator = new TaxCalculator(
-        List.of(
-                new LowTaxBand(),
-                new MediumTaxBand(),
-                new HighTaxBand()
-        )
-);
+                List.of(
+                        new LowTaxBand(),
+                        new MediumTaxBand(),
+                        new HighTaxBand()
+                )
+        );
+
         PayrollReportPrinter reportPrinter = new PayrollReportPrinter();
 
         PayrollCalculator calculator = new PayrollCalculator(
@@ -25,9 +29,12 @@ public class Demo {
         );
 
         try {
-            calculator.calculateNetPay("e1", 40, 20);
-            calculator.calculateNetPay("e2", 50, 30);
-            calculator.calculateNetPay("unknown", 40, 20);
+            BigDecimal firstRate = new BigDecimal("20.00");
+            BigDecimal secondRate = new BigDecimal("30.00");
+
+            calculator.calculateNetPay("e1", 40, firstRate);
+            calculator.calculateNetPay("e2", 50, secondRate);
+            calculator.calculateNetPay("unknown", 40, firstRate);
 
         } catch (EmployeeNotFoundException exception) {
             System.out.println(

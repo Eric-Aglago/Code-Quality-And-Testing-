@@ -1,5 +1,6 @@
 package com.rosewood.payroll;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -8,58 +9,53 @@ import org.junit.jupiter.api.Test;
 
 class TaxCalculatorTest {
 
-    private TaxCalculator createCalculator() {
-        return new TaxCalculator(
-                List.of(
-                        new LowTaxBand(),
-                        new MediumTaxBand(),
-                        new HighTaxBand()
-                )
+    @Test
+    void calculatesNetPayUsingLowTaxBand() {
+        TaxCalculator calculator = createCalculator();
+
+        assertEquals(
+                new BigDecimal("760.00"),
+                calculator.calculateNetPay(new BigDecimal("800.00"))
         );
     }
 
     @Test
-    void appliesFivePercentTaxToLowIncome() {
+    void calculatesNetPayUsingMediumTaxBand() {
+        TaxCalculator calculator = createCalculator();
+
         assertEquals(
-                760.0,
-                createCalculator().calculateNetPay(800),
-                0.001
+                new BigDecimal("1275.00"),
+                calculator.calculateNetPay(new BigDecimal("1500.00"))
         );
     }
 
     @Test
-    void appliesFifteenPercentTaxToMediumIncome() {
+    void calculatesNetPayUsingHighTaxBand() {
+        TaxCalculator calculator = createCalculator();
+
         assertEquals(
-                1275.0,
-                createCalculator().calculateNetPay(1500),
-                0.001
+                new BigDecimal("3750.00"),
+                calculator.calculateNetPay(new BigDecimal("5000.00"))
         );
     }
 
     @Test
-    void appliesTwentyFivePercentTaxToHighIncome() {
+    void selectsMediumTaxBandAtExactlyOneThousand() {
+        TaxCalculator calculator = createCalculator();
+
         assertEquals(
-                4500.0,
-                createCalculator().calculateNetPay(6000),
-                0.001
+                new BigDecimal("850.00"),
+                calculator.calculateNetPay(new BigDecimal("1000.00"))
         );
     }
 
     @Test
-    void appliesMediumTaxAtExactlyOneThousand() {
-        assertEquals(
-                850.0,
-                createCalculator().calculateNetPay(1000),
-                0.001
-        );
-    }
+    void selectsHighTaxBandAtExactlyFiveThousand() {
+        TaxCalculator calculator = createCalculator();
 
-    @Test
-    void appliesHighTaxAtExactlyFiveThousand() {
         assertEquals(
-                3750.0,
-                createCalculator().calculateNetPay(5000),
-                0.001
+                new BigDecimal("3750.00"),
+                calculator.calculateNetPay(new BigDecimal("5000.00"))
         );
     }
 
@@ -77,46 +73,59 @@ class TaxCalculatorTest {
     }
 
     @Test
-    void rejectsGrossPayWithoutMatchingTaxBand() {
+    void rejectsGrossPayWithoutAnApplicableTaxBand() {
         TaxCalculator calculator = new TaxCalculator(
-                List.of(new MediumTaxBand())
+                List.of(new LowTaxBand(), new MediumTaxBand())
         );
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> calculator.calculateNetPay(500)
+                () -> calculator.calculateNetPay(new BigDecimal("6000.00"))
         );
 
         assertEquals(
-                "No tax band found for gross pay: 500.0",
+                "No tax band found for gross pay: 6000.00",
                 exception.getMessage()
         );
     }
+
     @Test
-void supportsNewTaxBandWithoutModifyingTaxCalculator() {
-    TaxBand specialTaxBand = new TaxBand() {
+    void supportsNewTaxBandWithoutModifyingTaxCalculator() {
+        TaxBand specialTaxBand = new TaxBand() {
+            @Override
+            public boolean appliesTo(BigDecimal grossPay) {
+                return grossPay.compareTo(new BigDecimal("10000.00")) >= 0;
+            }
 
-        @Override
-        public boolean appliesTo(double grossPay) {
-            return grossPay >= 10000;
-        }
+            @Override
+            public BigDecimal calculateTax(BigDecimal grossPay) {
+                return grossPay.multiply(new BigDecimal("0.30"))
+                        .setScale(2);
+            }
+        };
 
-        @Override
-        public double calculateTax(double grossPay) {
-            return grossPay * 0.30;
-        }
-    };
+        TaxCalculator calculator = new TaxCalculator(
+                List.of(
+                        new LowTaxBand(),
+                        new MediumTaxBand(),
+                        specialTaxBand,
+                        new HighTaxBand()
+                )
+        );
 
-    TaxCalculator calculator = new TaxCalculator(
-            List.of(
-                    new LowTaxBand(),
-                    new MediumTaxBand(),
-                    specialTaxBand,
-                    new HighTaxBand()
-                    
-            )
-    );
+        assertEquals(
+                new BigDecimal("7000.00"),
+                calculator.calculateNetPay(new BigDecimal("10000.00"))
+        );
+    }
 
-    assertEquals(7000.0, calculator.calculateNetPay(10000), 0.001);
-}
+    private TaxCalculator createCalculator() {
+        return new TaxCalculator(
+                List.of(
+                        new LowTaxBand(),
+                        new MediumTaxBand(),
+                        new HighTaxBand()
+                )
+        );
+    }
 }

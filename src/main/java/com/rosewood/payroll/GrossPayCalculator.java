@@ -1,21 +1,35 @@
 package com.rosewood.payroll;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public class GrossPayCalculator {
 
     private static final double STANDARD_HOURS = 40;
-    private static final double OVERTIME_PREMIUM = 0.5;
+    private static final BigDecimal OVERTIME_PREMIUM =
+            new BigDecimal("0.5");
+    private static final int CURRENCY_SCALE = 2;
 
-    public double calculateGrossPay(
+    public BigDecimal calculateGrossPay(
             double hoursWorked,
-            double hourlyRate
+            BigDecimal hourlyRate
     ) {
-        double grossPay = hoursWorked * hourlyRate;
+        BigDecimal hours = BigDecimal.valueOf(hoursWorked);
+
+        BigDecimal grossPay = hours.multiply(hourlyRate);
 
         if (hoursWorked > STANDARD_HOURS) {
-            double overtimeHours = hoursWorked - STANDARD_HOURS;
-            grossPay += overtimeHours * hourlyRate * OVERTIME_PREMIUM;
+            BigDecimal overtimeHours = hours.subtract(
+                    BigDecimal.valueOf(STANDARD_HOURS)
+            );
+
+            BigDecimal overtimePay = overtimeHours
+                    .multiply(hourlyRate)
+                    .multiply(OVERTIME_PREMIUM);
+
+            grossPay = grossPay.add(overtimePay);
         }
 
-        return grossPay;
+        return grossPay.setScale(CURRENCY_SCALE, RoundingMode.HALF_UP);
     }
 }

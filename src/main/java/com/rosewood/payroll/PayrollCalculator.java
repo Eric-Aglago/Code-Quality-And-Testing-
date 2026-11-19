@@ -1,5 +1,6 @@
 package com.rosewood.payroll;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 public class PayrollCalculator {
@@ -16,27 +17,23 @@ public class PayrollCalculator {
             PayrollReportPrinter reportPrinter
     ) {
         this.repository = Objects.requireNonNull(
-                repository,
-                "Employee repository cannot be null"
+                repository, "Employee repository cannot be null"
         );
         this.grossPayCalculator = Objects.requireNonNull(
-                grossPayCalculator,
-                "Gross pay calculator cannot be null"
+                grossPayCalculator, "Gross pay calculator cannot be null"
         );
         this.taxCalculator = Objects.requireNonNull(
-                taxCalculator,
-                "Tax calculator cannot be null"
+                taxCalculator, "Tax calculator cannot be null"
         );
         this.reportPrinter = Objects.requireNonNull(
-                reportPrinter,
-                "Report printer cannot be null"
+                reportPrinter, "Report printer cannot be null"
         );
     }
 
-    public double calculateNetPay(
+    public BigDecimal calculateNetPay(
             String employeeId,
             double hoursWorked,
-            double hourlyRate
+            BigDecimal hourlyRate
     ) {
         validatePayrollInputs(employeeId, hoursWorked, hourlyRate);
 
@@ -46,12 +43,12 @@ public class PayrollCalculator {
             throw new EmployeeNotFoundException(employeeId);
         }
 
-        double grossPay = grossPayCalculator.calculateGrossPay(
+        BigDecimal grossPay = grossPayCalculator.calculateGrossPay(
                 hoursWorked,
                 hourlyRate
         );
 
-        double netPay = taxCalculator.calculateNetPay(grossPay);
+        BigDecimal netPay = taxCalculator.calculateNetPay(grossPay);
 
         reportPrinter.printNetPay(employee.getName(), netPay);
 
@@ -61,7 +58,7 @@ public class PayrollCalculator {
     private void validatePayrollInputs(
             String employeeId,
             double hoursWorked,
-            double hourlyRate
+            BigDecimal hourlyRate
     ) {
         if (employeeId == null || employeeId.isBlank()) {
             throw new IllegalArgumentException(
@@ -75,9 +72,9 @@ public class PayrollCalculator {
             );
         }
 
-        if (!Double.isFinite(hourlyRate) || hourlyRate < 0) {
+        if (hourlyRate == null || hourlyRate.signum() < 0) {
             throw new IllegalArgumentException(
-                    "Hourly rate must be a finite, non-negative value"
+                    "Hourly rate must be non-negative and cannot be null"
             );
         }
     }

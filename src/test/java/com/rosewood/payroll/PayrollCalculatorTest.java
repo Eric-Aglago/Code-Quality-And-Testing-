@@ -1,5 +1,6 @@
 package com.rosewood.payroll;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -17,15 +18,13 @@ class PayrollCalculatorTest {
         return new PayrollCalculator(
                 repository,
                 new GrossPayCalculator(),
-
                 new TaxCalculator(
-        List.of(
-                new LowTaxBand(),
-                new MediumTaxBand(),
-                new HighTaxBand()
-        )
-),
-                
+                        List.of(
+                                new LowTaxBand(),
+                                new MediumTaxBand(),
+                                new HighTaxBand()
+                        )
+                ),
                 new PayrollReportPrinter()
         );
     }
@@ -36,11 +35,10 @@ class PayrollCalculatorTest {
         when(repository.findById("e1"))
                 .thenReturn(new Employee("e1", "Efua Sarpong"));
 
-        PayrollCalculator calculator = createCalculator(repository);
+        BigDecimal result = createCalculator(repository)
+                .calculateNetPay("e1", 40, new BigDecimal("20.00"));
 
-        double netPay = calculator.calculateNetPay("e1", 40, 20);
-
-        assertEquals(760.0, netPay, 0.001);
+        assertEquals(new BigDecimal("760.00"), result);
     }
 
     @Test
@@ -49,11 +47,10 @@ class PayrollCalculatorTest {
         when(repository.findById("e1"))
                 .thenReturn(new Employee("e1", "Efua Sarpong"));
 
-        PayrollCalculator calculator = createCalculator(repository);
+        BigDecimal result = createCalculator(repository)
+                .calculateNetPay("e1", 50, new BigDecimal("30.00"));
 
-        double netPay = calculator.calculateNetPay("e1", 50, 30);
-
-        assertEquals(1402.5, netPay, 0.001);
+        assertEquals(new BigDecimal("1402.50"), result);
     }
 
     @Test
@@ -62,11 +59,10 @@ class PayrollCalculatorTest {
         when(repository.findById("e1"))
                 .thenReturn(new Employee("e1", "Efua Sarpong"));
 
-        PayrollCalculator calculator = createCalculator(repository);
+        BigDecimal result = createCalculator(repository)
+                .calculateNetPay("e1", 35, new BigDecimal("25.00"));
 
-        double netPay = calculator.calculateNetPay("e1", 35, 25);
-
-        assertEquals(831.25, netPay, 0.001);
+        assertEquals(new BigDecimal("831.25"), result);
     }
 
     @Test
@@ -74,11 +70,11 @@ class PayrollCalculatorTest {
         EmployeeRepository repository = mock(EmployeeRepository.class);
         when(repository.findById("unknown")).thenReturn(null);
 
-        PayrollCalculator calculator = createCalculator(repository);
-
         EmployeeNotFoundException exception = assertThrows(
                 EmployeeNotFoundException.class,
-                () -> calculator.calculateNetPay("unknown", 40, 20)
+                () -> createCalculator(repository).calculateNetPay(
+                        "unknown", 40, new BigDecimal("20.00")
+                )
         );
 
         assertEquals(
@@ -90,11 +86,12 @@ class PayrollCalculatorTest {
     @Test
     void rejectsNullEmployeeId() {
         EmployeeRepository repository = mock(EmployeeRepository.class);
-        PayrollCalculator calculator = createCalculator(repository);
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> calculator.calculateNetPay(null, 40, 20)
+                () -> createCalculator(repository).calculateNetPay(
+                        null, 40, new BigDecimal("20.00")
+                )
         );
 
         assertEquals("Employee ID must not be blank", exception.getMessage());
@@ -104,11 +101,12 @@ class PayrollCalculatorTest {
     @Test
     void rejectsBlankEmployeeId() {
         EmployeeRepository repository = mock(EmployeeRepository.class);
-        PayrollCalculator calculator = createCalculator(repository);
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> calculator.calculateNetPay("  ", 40, 20)
+                () -> createCalculator(repository).calculateNetPay(
+                        "  ", 40, new BigDecimal("20.00")
+                )
         );
 
         assertEquals("Employee ID must not be blank", exception.getMessage());
@@ -118,11 +116,12 @@ class PayrollCalculatorTest {
     @Test
     void rejectsNegativeHoursWorked() {
         EmployeeRepository repository = mock(EmployeeRepository.class);
-        PayrollCalculator calculator = createCalculator(repository);
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> calculator.calculateNetPay("e1", -5, 20)
+                () -> createCalculator(repository).calculateNetPay(
+                        "e1", -5, new BigDecimal("20.00")
+                )
         );
 
         assertEquals(
@@ -135,15 +134,16 @@ class PayrollCalculatorTest {
     @Test
     void rejectsNegativeHourlyRate() {
         EmployeeRepository repository = mock(EmployeeRepository.class);
-        PayrollCalculator calculator = createCalculator(repository);
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> calculator.calculateNetPay("e1", 40, -20)
+                () -> createCalculator(repository).calculateNetPay(
+                        "e1", 40, new BigDecimal("-20.00")
+                )
         );
 
         assertEquals(
-                "Hourly rate must be a finite, non-negative value",
+                "Hourly rate must be non-negative and cannot be null",
                 exception.getMessage()
         );
         verifyNoInteractions(repository);
@@ -152,11 +152,12 @@ class PayrollCalculatorTest {
     @Test
     void rejectsNonFiniteHoursWorked() {
         EmployeeRepository repository = mock(EmployeeRepository.class);
-        PayrollCalculator calculator = createCalculator(repository);
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> calculator.calculateNetPay("e1", Double.NaN, 20)
+                () -> createCalculator(repository).calculateNetPay(
+                        "e1", Double.NaN, new BigDecimal("20.00")
+                )
         );
 
         assertEquals(
@@ -167,21 +168,18 @@ class PayrollCalculatorTest {
     }
 
     @Test
-    void rejectsNonFiniteHourlyRate() {
+    void rejectsNullHourlyRate() {
         EmployeeRepository repository = mock(EmployeeRepository.class);
-        PayrollCalculator calculator = createCalculator(repository);
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> calculator.calculateNetPay(
-                        "e1",
-                        40,
-                        Double.POSITIVE_INFINITY
+                () -> createCalculator(repository).calculateNetPay(
+                        "e1", 40, null
                 )
         );
 
         assertEquals(
-                "Hourly rate must be a finite, non-negative value",
+                "Hourly rate must be non-negative and cannot be null",
                 exception.getMessage()
         );
         verifyNoInteractions(repository);
@@ -193,11 +191,10 @@ class PayrollCalculatorTest {
         when(repository.findById("e1"))
                 .thenReturn(new Employee("e1", "Efua Sarpong"));
 
-        PayrollCalculator calculator = createCalculator(repository);
+        BigDecimal result = createCalculator(repository)
+                .calculateNetPay("e1", 0, new BigDecimal("20.00"));
 
-        double netPay = calculator.calculateNetPay("e1", 0, 20);
-
-        assertEquals(0.0, netPay, 0.001);
+        assertEquals(new BigDecimal("0.00"), result);
     }
 
     @Test
@@ -206,10 +203,9 @@ class PayrollCalculatorTest {
         when(repository.findById("e1"))
                 .thenReturn(new Employee("e1", "Efua Sarpong"));
 
-        PayrollCalculator calculator = createCalculator(repository);
+        BigDecimal result = createCalculator(repository)
+                .calculateNetPay("e1", 40, BigDecimal.ZERO);
 
-        double netPay = calculator.calculateNetPay("e1", 40, 0);
-
-        assertEquals(0.0, netPay, 0.001);
+        assertEquals(new BigDecimal("0.00"), result);
     }
 }

@@ -1,5 +1,7 @@
 package com.rosewood.payroll;
 
+import java.math.BigDecimal;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
@@ -9,29 +11,37 @@ class GrossPayCalculatorTest {
 
     @Test
     void calculatesGrossPayForStandardWorkingHours() {
-        double result = calculator.calculateGrossPay(40, 20);
+        BigDecimal result = calculator.calculateGrossPay(
+                40, new BigDecimal("20.00")
+        );
 
-        assertEquals(800.0, result, 0.001);
+        assertEquals(new BigDecimal("800.00"), result);
     }
 
     @Test
     void calculatesGrossPayWithOvertime() {
-        double result = calculator.calculateGrossPay(50, 30);
+        BigDecimal result = calculator.calculateGrossPay(
+                50, new BigDecimal("30.00")
+        );
 
-        assertEquals(1650.0, result, 0.001);
+        assertEquals(new BigDecimal("1650.00"), result);
     }
 
     @Test
     void doesNotApplyOvertimeAtExactlyFortyHours() {
-        double result = calculator.calculateGrossPay(40, 30);
+        BigDecimal result = calculator.calculateGrossPay(
+                40, new BigDecimal("30.00")
+        );
 
-        assertEquals(1200.0, result, 0.001);
+        assertEquals(new BigDecimal("1200.00"), result);
     }
 
     @Test
     void calculatesZeroGrossPayWhenNoHoursAreWorked() {
-        double result = calculator.calculateGrossPay(0, 20);
+        BigDecimal result = calculator.calculateGrossPay(
+                0, new BigDecimal("20.00")
+        );
 
-        assertEquals(0.0, result, 0.001);
+        assertEquals(new BigDecimal("0.00"), result);
     }
 }
