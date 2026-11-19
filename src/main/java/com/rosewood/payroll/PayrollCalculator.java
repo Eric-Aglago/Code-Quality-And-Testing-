@@ -30,7 +30,7 @@ public class PayrollCalculator {
         );
     }
 
-    public BigDecimal calculateNetPay(
+    public PayrollResult calculatePayroll(
             String employeeId,
             double hoursWorked,
             BigDecimal hourlyRate
@@ -44,15 +44,14 @@ public class PayrollCalculator {
         }
 
         BigDecimal grossPay = grossPayCalculator.calculateGrossPay(
-                hoursWorked,
-                hourlyRate
+                hoursWorked, hourlyRate
         );
 
         BigDecimal netPay = taxCalculator.calculateNetPay(grossPay);
 
         reportPrinter.printNetPay(employee.getName(), netPay);
 
-        return netPay;
+        return new PayrollResult(grossPay, netPay);
     }
 
     private void validatePayrollInputs(

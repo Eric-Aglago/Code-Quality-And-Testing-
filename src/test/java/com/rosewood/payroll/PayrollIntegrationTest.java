@@ -33,27 +33,28 @@ class PayrollIntegrationTest {
     }
 
     @Test
-    void calculatesNetPayUsingRealComponents() {
-        BigDecimal result = createCalculator()
-                .calculateNetPay("e1", 40, new BigDecimal("20.00"));
+    void calculatesPayrollUsingRealComponents() {
+        PayrollResult result = createCalculator()
+                .calculatePayroll("e1", 40, new BigDecimal("20.00"));
 
-        assertEquals(new BigDecimal("760.00"), result);
+        assertEquals(new BigDecimal("800.00"), result.grossPay());
+        assertEquals(new BigDecimal("760.00"), result.netPay());
     }
 
     @Test
-    void calculatesOvertimePayUsingRealComponents() {
-        BigDecimal result = createCalculator()
-                .calculateNetPay("e2", 50, new BigDecimal("30.00"));
+    void calculatesOvertimePayrollUsingRealComponents() {
+        PayrollResult result = createCalculator()
+                .calculatePayroll("e2", 50, new BigDecimal("30.00"));
 
-        assertEquals(new BigDecimal("1402.50"), result);
+        assertEquals(new BigDecimal("1650.00"), result.grossPay());
+        assertEquals(new BigDecimal("1402.50"), result.netPay());
     }
 
     @Test
     void throwsExceptionForUnknownEmployeeUsingRealRepository() {
         EmployeeNotFoundException exception = assertThrows(
                 EmployeeNotFoundException.class,
-                () -> createCalculator().calculateNetPay(
-
+                () -> createCalculator().calculatePayroll(
                         "unknown", 40, new BigDecimal("20.00")
                 )
         );

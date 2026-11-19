@@ -30,39 +30,42 @@ class PayrollCalculatorTest {
     }
 
     @Test
-    void calculatesNetPayForRegularHours() {
+    void calculatesPayrollForRegularHours() {
         EmployeeRepository repository = mock(EmployeeRepository.class);
         when(repository.findById("e1"))
                 .thenReturn(new Employee("e1", "Efua Sarpong"));
 
-        BigDecimal result = createCalculator(repository)
-                .calculateNetPay("e1", 40, new BigDecimal("20.00"));
+        PayrollResult result = createCalculator(repository)
+                .calculatePayroll("e1", 40, new BigDecimal("20.00"));
 
-        assertEquals(new BigDecimal("760.00"), result);
+        assertEquals(new BigDecimal("800.00"), result.grossPay());
+        assertEquals(new BigDecimal("760.00"), result.netPay());
     }
 
     @Test
-    void calculatesNetPayIncludingOvertime() {
+    void calculatesPayrollIncludingOvertime() {
         EmployeeRepository repository = mock(EmployeeRepository.class);
         when(repository.findById("e1"))
                 .thenReturn(new Employee("e1", "Efua Sarpong"));
 
-        BigDecimal result = createCalculator(repository)
-                .calculateNetPay("e1", 50, new BigDecimal("30.00"));
+        PayrollResult result = createCalculator(repository)
+                .calculatePayroll("e1", 50, new BigDecimal("30.00"));
 
-        assertEquals(new BigDecimal("1402.50"), result);
+        assertEquals(new BigDecimal("1650.00"), result.grossPay());
+        assertEquals(new BigDecimal("1402.50"), result.netPay());
     }
 
     @Test
-    void calculatesNetPayForLowerTaxBand() {
+    void calculatesPayrollForLowerTaxBand() {
         EmployeeRepository repository = mock(EmployeeRepository.class);
         when(repository.findById("e1"))
                 .thenReturn(new Employee("e1", "Efua Sarpong"));
 
-        BigDecimal result = createCalculator(repository)
-                .calculateNetPay("e1", 35, new BigDecimal("25.00"));
+        PayrollResult result = createCalculator(repository)
+                .calculatePayroll("e1", 35, new BigDecimal("25.00"));
 
-        assertEquals(new BigDecimal("831.25"), result);
+        assertEquals(new BigDecimal("875.00"), result.grossPay());
+        assertEquals(new BigDecimal("831.25"), result.netPay());
     }
 
     @Test
@@ -72,7 +75,7 @@ class PayrollCalculatorTest {
 
         EmployeeNotFoundException exception = assertThrows(
                 EmployeeNotFoundException.class,
-                () -> createCalculator(repository).calculateNetPay(
+                () -> createCalculator(repository).calculatePayroll(
                         "unknown", 40, new BigDecimal("20.00")
                 )
         );
@@ -89,7 +92,7 @@ class PayrollCalculatorTest {
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> createCalculator(repository).calculateNetPay(
+                () -> createCalculator(repository).calculatePayroll(
                         null, 40, new BigDecimal("20.00")
                 )
         );
@@ -104,7 +107,7 @@ class PayrollCalculatorTest {
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> createCalculator(repository).calculateNetPay(
+                () -> createCalculator(repository).calculatePayroll(
                         "  ", 40, new BigDecimal("20.00")
                 )
         );
@@ -119,7 +122,7 @@ class PayrollCalculatorTest {
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> createCalculator(repository).calculateNetPay(
+                () -> createCalculator(repository).calculatePayroll(
                         "e1", -5, new BigDecimal("20.00")
                 )
         );
@@ -137,7 +140,7 @@ class PayrollCalculatorTest {
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> createCalculator(repository).calculateNetPay(
+                () -> createCalculator(repository).calculatePayroll(
                         "e1", 40, new BigDecimal("-20.00")
                 )
         );
@@ -155,7 +158,7 @@ class PayrollCalculatorTest {
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> createCalculator(repository).calculateNetPay(
+                () -> createCalculator(repository).calculatePayroll(
                         "e1", Double.NaN, new BigDecimal("20.00")
                 )
         );
@@ -173,7 +176,7 @@ class PayrollCalculatorTest {
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> createCalculator(repository).calculateNetPay(
+                () -> createCalculator(repository).calculatePayroll(
                         "e1", 40, null
                 )
         );
@@ -191,10 +194,11 @@ class PayrollCalculatorTest {
         when(repository.findById("e1"))
                 .thenReturn(new Employee("e1", "Efua Sarpong"));
 
-        BigDecimal result = createCalculator(repository)
-                .calculateNetPay("e1", 0, new BigDecimal("20.00"));
+        PayrollResult result = createCalculator(repository)
+                .calculatePayroll("e1", 0, new BigDecimal("20.00"));
 
-        assertEquals(new BigDecimal("0.00"), result);
+        assertEquals(new BigDecimal("0.00"), result.grossPay());
+        assertEquals(new BigDecimal("0.00"), result.netPay());
     }
 
     @Test
@@ -203,9 +207,10 @@ class PayrollCalculatorTest {
         when(repository.findById("e1"))
                 .thenReturn(new Employee("e1", "Efua Sarpong"));
 
-        BigDecimal result = createCalculator(repository)
-                .calculateNetPay("e1", 40, BigDecimal.ZERO);
+        PayrollResult result = createCalculator(repository)
+                .calculatePayroll("e1", 40, BigDecimal.ZERO);
 
-        assertEquals(new BigDecimal("0.00"), result);
+        assertEquals(new BigDecimal("0.00"), result.grossPay());
+        assertEquals(new BigDecimal("0.00"), result.netPay());
     }
 }
