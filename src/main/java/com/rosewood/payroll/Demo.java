@@ -41,10 +41,23 @@ public class Demo {
             ));
 
         } catch (EmployeeNotFoundException exception) {
-            System.out.println(
+            System.err.println(
                     "Payroll calculation failed: " + exception.getMessage()
             );
+            throw exception;
         }
+
+        // Demonstrate missing employee handling before the summary.
+        try {
+            calculator.calculatePayroll(
+                    "unknown", 40, new BigDecimal("20.00")
+            );
+        } catch (EmployeeNotFoundException exception) {
+            System.err.println(
+                    "Payroll Error : " + exception.getMessage()
+            );
+        }
+
 
         PayrollSummaryCalculator summaryCalculator =
                 new PayrollSummaryCalculator();

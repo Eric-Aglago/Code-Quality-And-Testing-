@@ -3,6 +3,7 @@ package com.rosewood.payroll;
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 
 class GrossPayCalculatorTest {
@@ -43,5 +44,69 @@ class GrossPayCalculatorTest {
         );
 
         assertEquals(new BigDecimal("0.00"), result);
+    }
+
+    @Test
+    void rejectsNegativeHoursWorked() {
+        assertEquals(
+                IllegalArgumentException.class,
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> calculator.calculateGrossPay(
+                                -5, new BigDecimal("20.00")
+                        )
+                ).getClass()
+        );
+    }
+
+    @Test
+    void rejectsNaNHoursWorked() {
+        assertEquals(
+                IllegalArgumentException.class,
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> calculator.calculateGrossPay(
+                                Double.NaN, new BigDecimal("20.00")
+                        )
+                ).getClass()
+        );
+    }
+
+    @Test
+    void rejectsInfiniteHoursWorked() {
+        assertEquals(
+                IllegalArgumentException.class,
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> calculator.calculateGrossPay(
+                                Double.POSITIVE_INFINITY,
+                                new BigDecimal("20.00")
+                        )
+                ).getClass()
+        );
+    }
+
+    @Test
+    void rejectsNegativeHourlyRate() {
+        assertEquals(
+                IllegalArgumentException.class,
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> calculator.calculateGrossPay(
+                                40, new BigDecimal("-20.00")
+                        )
+                ).getClass()
+        );
+    }
+
+    @Test
+    void rejectsNullHourlyRate() {
+        assertEquals(
+                IllegalArgumentException.class,
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> calculator.calculateGrossPay(40, null)
+                ).getClass()
+        );
     }
 }

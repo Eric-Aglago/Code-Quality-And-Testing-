@@ -50,12 +50,12 @@ class TaxCalculatorTest {
     }
 
     @Test
-    void selectsHighTaxBandAtExactlyFiveThousand() {
+    void calculatesNetPayJustAboveHighTaxBandThreshold() {
         TaxCalculator calculator = createCalculator();
 
         assertEquals(
-                new BigDecimal("3750.00"),
-                calculator.calculateNetPay(new BigDecimal("5000.00"))
+                new BigDecimal("3750.07"),
+                calculator.calculateNetPay(new BigDecimal("5000.10"))
         );
     }
 

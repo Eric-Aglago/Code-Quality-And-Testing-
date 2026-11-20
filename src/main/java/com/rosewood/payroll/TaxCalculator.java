@@ -1,6 +1,7 @@
 package com.rosewood.payroll;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 
@@ -30,6 +31,7 @@ public class TaxCalculator {
 
         BigDecimal tax = applicableBand.calculateTax(grossPay);
 
-        return grossPay.subtract(tax).setScale(2);
+        return grossPay.subtract(tax)
+                .setScale(2, RoundingMode.HALF_UP);
     }
 }

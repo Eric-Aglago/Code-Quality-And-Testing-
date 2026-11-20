@@ -14,6 +14,18 @@ public class GrossPayCalculator {
             double hoursWorked,
             BigDecimal hourlyRate
     ) {
+        if (!Double.isFinite(hoursWorked) || hoursWorked < 0) {
+            throw new IllegalArgumentException(
+                    "Hours worked must be a finite, non-negative value"
+            );
+        }
+
+        if (hourlyRate == null || hourlyRate.signum() < 0) {
+            throw new IllegalArgumentException(
+                    "Hourly rate must be non-negative and cannot be null"
+            );
+        }
+
         BigDecimal hours = BigDecimal.valueOf(hoursWorked);
 
         BigDecimal grossPay = hours.multiply(hourlyRate);
