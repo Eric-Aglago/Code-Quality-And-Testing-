@@ -1,128 +1,125 @@
-### Rosewood Payroll System
-A Java-based payroll application that calculates employee earnings, applies tax deductions, and generates payroll summaries.
+# Rosewood Payroll System
 
-### About the Project
-Rosewood Payroll is a payroll management application built to handle employee pay calculations in a structured and maintainable way.
+## About the Project
 
-The project started with a basic payroll implementation and was improved by addressing several code quality issues, including tightly coupled components, hardcoded tax rules, inaccurate monetary calculations, and insufficient test coverage.
+Rosewood Payroll is a Java-based application that calculates employee salaries, handles tax deductions, and generates payroll summaries.
 
-The goal was to make the application easier to maintain, test, and extend without having to rewrite large parts of the code whenever something changes.
+The project started as a simple payroll system. As development progressed, we identified areas where the code could be improved, particularly around code organization, financial calculations, testing, and how different parts of the application worked together.
 
-### Features
-Gross Pay Calculation: Calculates employee earnings, including regular working hours and overtime.
-Tax Calculation: Applies the appropriate tax band based on the employee's taxable earnings.
-Net Pay Calculation: Calculates the employee's take-home pay after applicable deductions.
-Employee Management: Retrieves employee information through a dedicated repository.
-Input Validation: Handles invalid employee IDs, working hours, and hourly rates.
-Error Handling: Provides meaningful exceptions when an employee cannot be found or invalid information is supplied.
-Payroll Reporting: Generates payroll summaries showing employee gross pay and net pay.
-Monetary Precision: Uses Java's BigDecimal to avoid floating-point inaccuracies when handling money.
+Rather than just adding more features, the focus was on improving the existing codebase and making it easier to understand, maintain, and extend.
 
-### Technologies Used
-Java
-Maven
-JUnit 5
-Mockito
-JaCoCo
+## What the Application Does
 
-Project Structure
-src/
-├── main/
-│   └── java/
-│       └── com/rosewood/payroll/
-│           ├── Demo.java
-│           ├── Employee.java
-│           ├── EmployeeRepository.java
-│           ├── InMemoryEmployeeRepository.java
-│           ├── EmployeeNotFoundException.java
-│           ├── GrossPayCalculator.java
-│           ├── PayrollCalculator.java
-│           ├── PayrollReportPrinter.java
-│           ├── TaxCalculator.java
-│           ├── TaxBand.java
-│           ├── LowTaxBand.java
-│           ├── MediumTaxBand.java
-│           └── HighTaxBand.java
-│
-└── test/
-    └── java/
-        └── com/rosewood/payroll/
-            ├── GrossPayCalculatorTest.java
-            ├── PayrollCalculatorTest.java
-            ├── TaxCalculatorTest.java
-            ├── PayrollReportPrinterTest.java
-            └── ...
-### How the Application Works
-The application separates payroll responsibilities into individual components.
+The application handles the main tasks involved in processing employee payroll:
 
-EmployeeRepository: Retrieves employee records instead of having the payroll calculator manage employee data directly.
+- **Calculates Gross Pay:** Determines employee earnings based on their hours worked and hourly rate.
+- **Calculates Tax:** Applies the appropriate tax band to employee earnings.
+- **Calculates Net Pay:** Determines how much an employee receives after tax deductions.
+- **Manages Employee Records:** Uses an in-memory repository to store and retrieve employee information.
+- **Generates Payroll Summaries:** Provides a breakdown of gross pay, tax deductions, and net pay.
+- **Validates Inputs:** Handles invalid values to prevent incorrect payroll calculations.
 
-GrossPayCalculator: Calculates total employee earnings, including overtime.
+## Technologies Used
 
-TaxCalculator: Determines the applicable tax using separate tax band implementations.
+- **Java** – Used to build the application and implement its payroll functionality.
+- **JUnit 5** – Used to write and run automated tests.
+- **Maven** – Handles project dependencies and the build process.
+- **Git & GitHub** – Used for version control and tracking development changes.
 
-PayrollCalculator: Coordinates the calculation process and determines the employee's net pay.
+## Project Structure
 
-PayrollReportPrinter: Produces a readable payroll summary showing employee earnings and take-home pay.
+The project is organized into separate classes, with each responsible for a specific part of the payroll process.
+## Improvements Made
 
-This structure keeps each component focused on a specific responsibility and makes future changes easier.
+A major part of this project involved going back to the original implementation and addressing problems that could make the application difficult to maintain.
 
-### Design Improvements
-Separation of Concerns: Moved different payroll responsibilities into dedicated classes.
+Some of the improvements include:
 
-Dependency Injection: Injected the employee repository into the payroll calculator rather than creating dependencies internally.
+- **Better Code Organization:** Responsibilities were separated into different classes instead of having too much logic handled in one place.
+- **Improved Tax Calculations:** Tax rules were separated into individual tax band classes, making the calculation process easier to manage.
+- **More Accurate Financial Calculations:** `BigDecimal` was introduced for monetary calculations to avoid the precision problems associated with floating-point numbers.
+- **Reduced Coupling:** Components were reorganized to make them less dependent on one another.
+- **Better Error Handling:** Validation and exception handling were improved to make failures easier to identify.
+- **Payroll Reporting:** Payroll summary functionality was introduced to provide a clearer breakdown of employee earnings and deductions.
+- **Automated Testing:** Unit and integration tests were added to check that the different parts of the application behave as expected.
 
-Open/Closed Principle: Separated tax band rules into individual implementations, making it easier to introduce additional tax bands without rewriting the existing calculation logic.
+## Running the Project
 
-Input Validation: Added checks to prevent invalid values from entering payroll calculations.
+### Prerequisites
 
-Custom Exceptions: Introduced meaningful error handling for missing employees.
+Before running the application, make sure you have:
 
-BigDecimal: Replaced floating-point monetary calculations with precise decimal arithmetic.
+- Java JDK installed.
+- Apache Maven installed.
+- Git installed.
 
-### Running the Project
-Prerequisites
-Java Development Kit (JDK)
+### Clone the Repository
 
-Apache Maven
-Visual Studio Code or another Java-compatible IDE
+Open your terminal and run:
 
-1. Clone the repository
-git clone YOUR_GITHUB_REPOSITORY_URL
-2. Navigate into the project
-cd code-quality-c-rosewood-payroll
-3. Build the project
+```bash
+git clone https://github.com/Eric-Aglago/Code-Quality-And-Testing-.git
+```
+
+Navigate into the project directory:
+
+```bash
+cd Code-Quality-And-Testing-
+```
+
+### Run the Tests
+
+To execute the automated test suite, run:
+
+```bash
+mvn test
+```
+
+This compiles the project and runs the available tests using JUnit 5.
+
+### Build the Project
+
+To clean and package the application, run:
+
+```bash
 mvn clean package
-4. Run the application
-Open the project in your IDE and run Demo.java from the com.rosewood.payroll package.
+```
 
-mvn compile
-mvn exec:java "-Dexec.mainClass=com.rosewood.payroll.Demo"
+## Testing
 
-### Running the Tests
-The project includes unit and integration tests covering the different payroll components.
+Testing was an important part of improving the reliability of Rosewood Payroll.
 
-To execute the test suite, run:
-mvn clean test
+JUnit 5 was used to check individual components as well as how different parts of the application work together.
 
-The tests cover areas such as:
-Gross pay and overtime calculations.
-Tax calculations across different tax bands.
-Net pay calculations.
-Employee repository operations.
-Input validation and exception handling.
-Payroll summary reporting.
+The test suite covers:
 
+- Gross pay calculations.
+- Tax calculations across different tax bands.
+- Employee repository operations.
+- Payroll calculations.
+- Payroll integration.
+- Payroll report printing.
+- Payroll summary calculations.
 
-Test reports are generated in:
+The tests also check important edge cases and invalid inputs to ensure the application handles unexpected situations appropriately.
 
-`target/surefire-reports/`
+## Project Analysis
 
-### What I Learned
-Writing cleaner and more maintainable Java code.
-Applying object-oriented programming principles.
-Understanding dependency injection.
-Designing code around separate responsibilities.
-Writing meaningful unit and integration tests.
-Handling financial calculations with BigDecimal.
-Using Git and GitHub to track changes through meaningful commits.
+The `ANALYSIS.md` file documents the problems identified in the original implementation, the reasoning behind the changes, and the improvements made during refactoring.
+
+It provides additional context on how the application evolved and the decisions made to improve its overall code quality.
+
+## Future Improvements
+
+Although the current application handles its core payroll operations, there is room to expand it further.
+
+Some possible improvements include:
+
+- Integrating a database for permanent employee records.
+- Adding employee management functionality.
+- Keeping historical payroll records.
+- Supporting payroll report exports.
+- Introducing a graphical user interface.
+
+## Author
+Developed as part of a Code Quality and Testing project.
